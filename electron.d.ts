@@ -1,4 +1,4 @@
-// Type definitions for Electron 12.0.2
+// Type definitions for Electron 12.0.0-beta.29
 // Project: http://electronjs.org/
 // Definitions by: The Electron Team <https://github.com/electron/electron>
 // Definitions: https://github.com/electron/electron-typescript-definitions
@@ -558,16 +558,6 @@ You should call `event.preventDefault()` if you want to handle this event.
     removeListener(event: 'render-process-gone', listener: (event: Event,
                                                 webContents: WebContents,
                                                 details: RenderProcessGoneDetails) => void): this;
-    /**
-     * Emitted when the renderer process of `webContents` crashes or is killed.
-     *
-     * **Deprecated:** This event is superceded by the `render-process-gone` event
-     * which contains more information about why the render process disappeared. It
-     * isn't always because it crashed.  The `killed` boolean can be replaced by
-     * checking `reason === 'killed'` when you switch to that event.
-     *
-     * @deprecated
-     */
     on(event: 'renderer-process-crashed', listener: (event: Event,
                                                      webContents: WebContents,
                                                      killed: boolean) => void): this;
@@ -2352,7 +2342,7 @@ Calling `event.preventDefault()` will prevent the menu from being displayed.
      * Resolves with a NativeImage
      *
      * Captures a snapshot of the page within `rect`. Omitting `rect` will capture the
-     * whole visible page. If the page is not visible, `rect` may be empty.
+     * whole visible page.
      */
     capturePage(rect?: Rectangle): Promise<Electron.NativeImage>;
     /**
@@ -2508,7 +2498,7 @@ Calling `event.preventDefault()` will prevent the menu from being displayed.
      *
      * @platform win32
      */
-    hookWindowMessage(message: number, callback: (wParam: any, lParam: any) => void): void;
+    hookWindowMessage(message: number, callback: () => void): void;
     /**
      * Whether the window is always on top of other windows.
      */
@@ -3738,58 +3728,10 @@ This cannot be called when `titleBarStyle` is set to `customButtonsOnHover`.
      * Emitted when a cookie is changed because it was added, edited, removed, or
      * expired.
      */
-    on(event: 'changed', listener: (event: Event,
-                                    /**
-                                     * The cookie that was changed.
-                                     */
-                                    cookie: Cookie,
-                                    /**
-                                     * The cause of the change with one of the following values:
-                                     */
-                                    cause: ('explicit' | 'overwrite' | 'expired' | 'evicted' | 'expired-overwrite'),
-                                    /**
-                                     * `true` if the cookie was removed, `false` otherwise.
-                                     */
-                                    removed: boolean) => void): this;
-    once(event: 'changed', listener: (event: Event,
-                                    /**
-                                     * The cookie that was changed.
-                                     */
-                                    cookie: Cookie,
-                                    /**
-                                     * The cause of the change with one of the following values:
-                                     */
-                                    cause: ('explicit' | 'overwrite' | 'expired' | 'evicted' | 'expired-overwrite'),
-                                    /**
-                                     * `true` if the cookie was removed, `false` otherwise.
-                                     */
-                                    removed: boolean) => void): this;
-    addListener(event: 'changed', listener: (event: Event,
-                                    /**
-                                     * The cookie that was changed.
-                                     */
-                                    cookie: Cookie,
-                                    /**
-                                     * The cause of the change with one of the following values:
-                                     */
-                                    cause: ('explicit' | 'overwrite' | 'expired' | 'evicted' | 'expired-overwrite'),
-                                    /**
-                                     * `true` if the cookie was removed, `false` otherwise.
-                                     */
-                                    removed: boolean) => void): this;
-    removeListener(event: 'changed', listener: (event: Event,
-                                    /**
-                                     * The cookie that was changed.
-                                     */
-                                    cookie: Cookie,
-                                    /**
-                                     * The cause of the change with one of the following values:
-                                     */
-                                    cause: ('explicit' | 'overwrite' | 'expired' | 'evicted' | 'expired-overwrite'),
-                                    /**
-                                     * `true` if the cookie was removed, `false` otherwise.
-                                     */
-                                    removed: boolean) => void): this;
+    on(event: 'changed', listener: Function): this;
+    once(event: 'changed', listener: Function): this;
+    addListener(event: 'changed', listener: Function): this;
+    removeListener(event: 'changed', listener: Function): this;
     /**
      * A promise which resolves when the cookie store has been flushed
      * 
@@ -11130,6 +11072,13 @@ The factor must be greater than 0.0.
      */
     executeJavaScript(code: string, userGesture?: boolean): Promise<unknown>;
     /**
+     * A promise that resolves with the result of the executed code or is rejected if
+     * execution throws or results in a rejected promise.
+     * 
+Works like `executeJavaScript` but evaluates `scripts` in an isolated context.
+     */
+    executeJavaScriptInIsolatedWorld(worldId: number, code: string, userGesture?: boolean): Promise<unknown>;
+    /**
      * Send a message to the renderer process, optionally transferring ownership of
      * zero or more [`MessagePortMain`][] objects.
      *
@@ -15047,7 +14996,7 @@ See webContents.sendInputEvent for detailed description of `event` object.
     offscreen?: boolean;
     /**
      * Whether to run Electron APIs and the specified `preload` script in a separate
-     * JavaScript context. Defaults to `true`. The context that the `preload` script
+     * JavaScript context. Defaults to `false`. The context that the `preload` script
      * runs in will only have access to its own dedicated `document` and `window`
      * globals, as well as its own set of JavaScript builtins (`Array`, `Object`,
      * `JSON`, etc.), which are all invisible to the loaded content. The Electron API
@@ -15063,7 +15012,8 @@ See webContents.sendInputEvent for detailed description of `event` object.
     /**
      * If true, values returned from `webFrame.executeJavaScript` will be sanitized to
      * ensure JS values can't unsafely cross between worlds when using
-     * `contextIsolation`. Defaults to `true`. _Deprecated_
+     * `contextIsolation`.  The default is `false`. In Electron 12, the default will be
+     * changed to `true`. _Deprecated_
      */
     worldSafeExecuteJavaScript?: boolean;
     /**
